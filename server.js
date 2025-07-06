@@ -19,6 +19,8 @@ app.set("view engine", "ejs")
 app.use(expressLayouts)
 app.set("layout", "./layouts/layout") // not at views root
 
+/*serve static files*/
+app.use(express.static("public"));
 
 /* ***********************
  * Routes
@@ -27,7 +29,7 @@ app.use(static)
 
 //index route****
 app.get("/", function(req, res){
-  res.render("index", {title: "Home"})
+  res.render("index", {title: "Home" })
 })
 
 

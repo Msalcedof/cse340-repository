@@ -2,6 +2,8 @@
  * This server.js file is the primary file of the 
  * application. It is used to control the project.
  *******************************************/
+
+
 /* ***********************
  * Require Statements
  *************************/
@@ -10,6 +12,15 @@ const expressLayouts = require("express-ejs-layouts")
 const env = require("dotenv").config()
 const app = express()
 const static = require("./routes/static")
+/*week03 new content*/
+const inventoryRoutes = require("./routes/inventoryRoute");
+
+const utilities = require('./utilities/index');
+
+
+/*week03 new content*/
+const baseControllers = require("./controllers/baseController");
+
 
 
 /* ***********************
@@ -28,9 +39,34 @@ app.use(express.static("public"));
 app.use(static)
 
 //index route****
-app.get("/", function(req, res){
-  res.render("index", {title: "Home" })
+/*week03 new content*/
+// Inventory routes*/
+app.use("/inv", inventoryRoutes)
+app.get("/", utilities.handleErrors(baseControllers.buildHome));
+
+
+
+// File Not Found Route - must be last route in list
+app.use(async (req, res, next) => {
+  next({status: 404, message: 'Sorry, we appear to have lost that page.'})
 })
+
+
+/*week03 new content*/
+/* ***********************
+* Express Error Handler
+* Place after all other middleware
+*************************/
+app.use(async (err, req, res, next) => {
+  let nav = await utilities.getNav()
+  console.error(`Error at: "${req.originalUrl}": ${err.message}`)
+  res.render("errors/error", {
+    title: err.status || 'Server Error',
+    message: err.message,
+    nav
+  })
+})
+
 
 
 

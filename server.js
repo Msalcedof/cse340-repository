@@ -31,7 +31,7 @@ app.use(expressLayouts)
 app.set("layout", "./layouts/layout") // not at views root
 
 /*serve static files*/
-app.use(express.static("public"));
+app.use(express.static("public/site"));
 
 /* ***********************
  * Routes

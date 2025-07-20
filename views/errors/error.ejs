@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-  </head>
-  <body>
-    <h1><%= title %></h1>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css" /> <!-- optional -->
+</head>
 
-    <div class="error-message">
-      <p><%- message %></p> <!-- This shows the full HTML message passed from the controller -->
-    </div>
+<body>
+  <main class="error-view">
+    <h1><%= title %></h1>
+    <p><%= message %></p>
 
     <div class="fun-touch">
       <p>Whoops! Something went wrong... Maybe we gave your route a wrong turn signal 🚗💨</p>
       <p><a href="/">Click here to head home</a> before the server finds out we broke something 😉</p>
     </div>
-  </body>
+  </main>
+</body>
 </html>

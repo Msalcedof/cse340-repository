@@ -13,6 +13,9 @@ const routers = express.Router();
 
 router.get("/classifications", invController.buildClassificationView);
 
+/*week03*/
+router.get("/detail/:inventoryId", invController.buildDetailView);
+router.get("/trigger-error", invController.triggerError);
 
 
 

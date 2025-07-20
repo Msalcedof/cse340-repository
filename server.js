@@ -11,17 +11,13 @@ const express = require("express")
 const expressLayouts = require("express-ejs-layouts")
 const env = require("dotenv").config()
 const app = express()
+
 const static = require("./routes/static")
 /*week03 new content*/
 const inventoryRoutes = require("./routes/inventoryRoute");
-
-const utilities = require('./utilities/index');
-
-
-/*week03 new content*/
 const baseControllers = require("./controllers/baseController");
-
-
+const utilities = require('./utilities/index');
+const handleErrors = require("./utilities/errorHandler");
 
 /* ***********************
  * view engine and template
@@ -42,14 +38,22 @@ app.use(static)
 /*week03 new content*/
 // Inventory routes*/
 app.use("/inv", inventoryRoutes)
+
+// Home route wrapped in async error handler
 app.get("/", utilities.handleErrors(baseControllers.buildHome));
 
+// 404 handler
+app.use((req, res) => {
+  const nav = ""; // or await getNav() if needed
+  res.status(404).render("errors/error", {
+    title: "Page Not Found",
+    message: "Sorry, we appear to have lost that page.",
+    nav,
+  });
+});
 
-
-// File Not Found Route - must be last route in list
-app.use(async (req, res, next) => {
-  next({status: 404, message: 'Sorry, we appear to have lost that page.'})
-})
+// 500 handler
+app.use(handleErrors);
 
 
 /*week03 new content*/

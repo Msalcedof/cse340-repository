@@ -1,5 +1,7 @@
 const invModel = require("../models/inventory-model")
 const Util = {}
+const utilities = {};
+
 
 /* ************************
  * Constructs the nav HTML unordered list
@@ -65,4 +67,35 @@ Util.buildClassificationGrid = async function(data){
  **************************************** */
 Util.handleErrors = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
 
-module.exports = Util
+/*week 03*/
+utilities.buildVehicleDetail = function(vehicle) {
+  const price = vehicle.price.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  const mileage = vehicle.miles.toLocaleString("en-US");
+
+  return `
+    <section class="vehicle-detail">
+      <div class="vehicle-wrapper">
+        <div class="vehicle-image">
+          <img src="${vehicle.image}" alt="${vehicle.make} ${vehicle.model}">
+        </div>
+        <div class="vehicle-info">
+          <h1>${vehicle.year} ${vehicle.make} ${vehicle.model}</h1>
+          <ul>
+            <li><strong>Price:</strong> ${price}</li>
+            <li><strong>Mileage:</strong> ${mileage} miles</li>
+            <li><strong>Color:</strong> ${vehicle.color}</li>
+            <li><strong>Transmission:</strong> ${vehicle.transmission}</li>
+            <li><strong>Drivetrain:</strong> ${vehicle.drivetrain}</li>
+            <li><strong>Fuel Type:</strong> ${vehicle.fuel_type}</li>
+            <li><strong>MPG:</strong> ${vehicle.mpg}</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+module.exports = {
+  ...Util,
+  ... utilities
+};

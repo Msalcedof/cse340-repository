@@ -171,3 +171,33 @@ footer {
     margin: 0;
   }
 }
+
+/*week 03*/
+.vehicle-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.vehicle-image, .vehicle-info {
+  flex: 1 1 400px;
+}
+
+.vehicle-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+@media screen and (max-width: 768px) {
+  .vehicle-wrapper {
+    flex-direction: column;
+  }
+}
+
+.error-view {
+  padding: 2rem;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+}

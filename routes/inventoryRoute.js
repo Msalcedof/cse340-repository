@@ -7,7 +7,7 @@ router.get("/type/:classificationId", invController.buildByClassificationId);
 
 
 /*debugging code intentionally*/
-const express = require("express");
+
 const routers = express.Router();
 const invController = require("../controllers/invController");
 

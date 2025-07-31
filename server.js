@@ -1,50 +1,76 @@
+// 🟢 WHERE: Load environment variables FIRST
+require("dotenv").config();
+
 /* ******************************************
  * This server.js file is the primary file of the 
  * application. It is used to control the project.
  *******************************************/
 
+/* 🔧 HOW: Require core modules and middleware */
+const express = require("express");
+const expressLayouts = require("express-ejs-layouts");
+const session = require("express-session");
+const flash = require("connect-flash");
+const bodyParser = require("body-parser");
+const path = require("path"); // consistent static pathing
+const app = express();
 
-/* ***********************
- * Require Statements
- *************************/
-const express = require("express")
-const expressLayouts = require("express-ejs-layouts")
-const env = require("dotenv").config()
-const app = express()
-
-const static = require("./routes/static")
-/*week03 new content*/
+/* 🧩 Route and utility imports */
+const static = require("./routes/static");
 const inventoryRoutes = require("./routes/inventoryRoute");
+const accountRoute = require("./routes/accountRoute");
 const baseControllers = require("./controllers/baseController");
 const utilities = require('./utilities/index');
 const handleErrors = require("./utilities/errorHandler");
+const pool = require('./database/');
 
-/* ***********************
- * view engine and template
- *************************/
-app.set("view engine", "ejs")
-app.use(expressLayouts)
-app.set("layout", "./layouts/layout") // not at views root
+/* 🎨 View engine configuration */
+app.set("view engine", "ejs");
+app.use(expressLayouts);
+app.set("layout", "./layouts/layout");
 
-/*serve static files*/
-app.use(express.static("public/site"));
+/* 🌐 Serve static assets from /public */
+app.use(express.static(path.join(__dirname, "public")));
 
-/* ***********************
- * Routes
- *************************/
-app.use(static)
+/* 📦 Middleware setup */
 
-//index route****
-/*week03 new content*/
-// Inventory routes*/
-app.use("/inv", inventoryRoutes)
+// Parse request bodies
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Home route wrapped in async error handler
-app.get("/", utilities.handleErrors(baseControllers.buildHome));
+// Enable session management with PostgreSQL store
+app.use(session({
+  store: new (require('connect-pg-simple')(session))({
+    createTableIfMissing: true,
+    pool,
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  name: 'sessionId',
+}));
 
-// 404 handler
-app.use((req, res) => {
-  const nav = ""; // or await getNav() if needed
+// Enable flash messages
+app.use(flash());
+
+// 🔄 HOW: Provide flash messages and notices to views
+app.use((req, res, next) => {
+  res.locals.notice = req.flash("notice");
+  res.locals.messages = require("express-messages")(req, res);
+  next();
+});
+
+/* 🚦 Routing */
+app.use(static);              // Static routes
+app.use("/inv", inventoryRoutes); // Inventory routes
+app.use("/account", accountRoute); // Account routes
+app.get("/", utilities.handleErrors(baseControllers.buildHome)); // Home route
+
+/* 🚨 Error Handlers */
+
+// 404 Not Found
+app.use(async (req, res) => {
+  const nav = await utilities.getNav(); // ✅ Use nav even on error views
   res.status(404).render("errors/error", {
     title: "Page Not Found",
     message: "Sorry, we appear to have lost that page.",
@@ -52,38 +78,13 @@ app.use((req, res) => {
   });
 });
 
-// 500 handler
+// 500 Internal Server Error
 app.use(handleErrors);
 
+/* 🚀 Start server with values from .env */
+const port = process.env.PORT || 3000;
+const host = process.env.HOST || "localhost";
 
-/*week03 new content*/
-/* ***********************
-* Express Error Handler
-* Place after all other middleware
-*************************/
-app.use(async (err, req, res, next) => {
-  let nav = await utilities.getNav()
-  console.error(`Error at: "${req.originalUrl}": ${err.message}`)
-  res.render("errors/error", {
-    title: err.status || 'Server Error',
-    message: err.message,
-    nav
-  })
-})
-
-
-
-
-/* ***********************
- * Local Server Information
- * Values from .env (environment) file
- *************************/
-const port = process.env.PORT
-const host = process.env.HOST
-
-/* ***********************
- * Log statement to confirm server operation
- *************************/
 app.listen(port, () => {
-  console.log(`app listening on ${host}:${port}`)
-})
+  console.log(`app listening on ${host}:${port}`);
+});

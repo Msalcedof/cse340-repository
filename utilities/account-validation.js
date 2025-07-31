@@ -1,4 +1,4 @@
-const utilities = require("./index") // ✅ Adjust this if needed
+const utilities = require("./index") // Adjust this if needed
 const { body, validationResult } = require("express-validator")
 const accountModel = require("../models/account-model")
 

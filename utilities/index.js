@@ -16,7 +16,7 @@ Util.getNav = async function () {
       return `<ul><li><a href="/" title="Home page">Home</a></li></ul>`;
     }
 
-    // ✅ Filter out duplicate classification names
+    //  Filter out duplicate classification names
     const uniqueClassifications = [];
     const seenNames = new Set();
 
@@ -30,7 +30,7 @@ Util.getNav = async function () {
     let list = '<ul id="nav-list">';
     list += '<li><a href="/" title="Home page">Home</a></li>';
 
-    // ✅ Use filtered data to build the nav
+    //  Use filtered data to build the nav
     uniqueClassifications.forEach((row) => {
       list += `<li>
         <a href="/inv/type/${row.classification_id}" title="See our inventory of ${row.classification_name} vehicles">

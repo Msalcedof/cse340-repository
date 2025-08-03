@@ -4,7 +4,9 @@ const invModel = {};
 // Get all classification data
 invModel.getClassifications = async function () {
   try {
-    const result = await pool.query("SELECT * FROM public.classification ORDER BY classification_name");
+    const result = await pool.query(
+      "SELECT * FROM public.classification ORDER BY classification_name"
+    );
     return result.rows;
   } catch (error) {
     console.error("getClassifications error:", error);
@@ -16,10 +18,11 @@ invModel.getClassifications = async function () {
 invModel.getInventoryByClassificationId = async function (classification_id) {
   try {
     const data = await pool.query(
-      `SELECT * FROM public.inventory AS i 
-      JOIN public.classification AS c 
-      ON i.classification_id = c.classification_id 
-      WHERE i.classification_id = $1`,
+      `SELECT i.*, c.classification_name 
+       FROM public.inventory AS i
+       JOIN public.classification AS c 
+       ON i.classification_id = c.classification_id 
+       WHERE i.classification_id = $1`,
       [classification_id]
     );
     return data.rows;
@@ -29,12 +32,12 @@ invModel.getInventoryByClassificationId = async function (classification_id) {
   }
 };
 
-// Get vehicle details by inventory_id
-invModel.getVehicleById = async function (inventoryId) {
+// Get vehicle details by inv_id
+invModel.getVehicleById = async function (inv_id) {
   try {
     const result = await pool.query(
-      `SELECT * FROM inventory WHERE inventory_id = $1`,
-      [inventoryId]
+      `SELECT * FROM inventory WHERE inv_id = $1`,
+      [inv_id]
     );
     return result.rows[0];
   } catch (error) {
@@ -46,9 +49,11 @@ invModel.getVehicleById = async function (inventoryId) {
 // Add a new classification
 invModel.addClassification = async function (classification_name) {
   try {
-    const sql = "INSERT INTO classification (classification_name) VALUES ($1)";
+    const sql = `
+      INSERT INTO classification (classification_name)
+      VALUES ($1) RETURNING *`;
     const result = await pool.query(sql, [classification_name]);
-    return result.rowCount;
+    return result.rows[0]; // Return the inserted row, not just rowCount
   } catch (error) {
     console.error("addClassification error:", error);
     throw error;
@@ -57,34 +62,42 @@ invModel.addClassification = async function (classification_name) {
 
 // Insert a new inventory item
 async function insertInventory(vehicleData) {
-  const { 
-    classification_id, make, model, year, description,
-    miles, price, color, image, thumbnail 
+  const {
+    classification_id,
+    inv_make,
+    inv_model,
+    inv_year,
+    inv_description,
+    inv_miles,
+    inv_price,
+    inv_color,
+    inv_image,
+    inv_thumbnail
   } = vehicleData;
 
   try {
     const sql = `
       INSERT INTO inventory (
-        classification_id, make, model, year, description,
-        miles, price, color, image, thumbnail
+        classification_id, inv_make, inv_model, inv_year, inv_description,
+        inv_miles, inv_price, inv_color, inv_image, inv_thumbnail
+      ) VALUES (
+        $1, $2, $3, $4, $5,
+        $6, $7, $8, $9, $10
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING *;
     `;
-
     const data = await pool.query(sql, [
       classification_id,
-      make,
-      model,
-      year,
-      description,
-      miles,
-      price,
-      color,
-      image,
-      thumbnail
+      inv_make,
+      inv_model,
+      inv_year,
+      inv_description,
+      inv_miles,
+      inv_price,
+      inv_color,
+      inv_image,
+      inv_thumbnail
     ]);
-
     return data.rows[0];
   } catch (error) {
     console.error("insertInventory error:", error);
@@ -92,7 +105,7 @@ async function insertInventory(vehicleData) {
   }
 }
 
-//Export everything properly
+// Export all functions
 module.exports = {
   ...invModel,
   insertInventory

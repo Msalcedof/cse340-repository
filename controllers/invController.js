@@ -1,18 +1,27 @@
 const invModel = require("../models/inventory-model");
 const utilities = require("../utilities/");
 const invController = {};
-const inventoryModel = require("../models/inventory-model");
 
 /* ***************************
  * Build inventory by classification view
  ************************** */
 invController.buildByClassificationId = async function (req, res, next) {
   try {
-    const classification_id = req.params.classificationId;
-    const result = await invModel.getInventoryByClassificationId(classification_id);
-    const data = result.rows;
-    const grid = await utilities.buildClassificationGrid(data);
+    const classification_id = parseInt(req.params.classificationId);
+    const data = await invModel.getInventoryByClassificationId(classification_id);
     const nav = await utilities.getNav();
+
+    console.log("🔍 Vehicle inventory results:", data);
+
+    if (!Array.isArray(data) || data.length === 0) {
+      return res.status(404).render("errors/error", {
+        title: "No Vehicles Found",
+        nav,
+        message: "We couldn't find any vehicles in this category.",
+      });
+    }
+
+    const grid = await utilities.buildInventoryGrid(data);
     const className = data[0]?.classification_name || "Vehicles";
 
     res.render("./inventory/classification", {
@@ -21,12 +30,13 @@ invController.buildByClassificationId = async function (req, res, next) {
       grid,
     });
   } catch (error) {
+    console.error("🔥 Error in buildByClassificationId:", error);
     next(error);
   }
 };
 
 /* ************************************
- * Build classification list (debugging)
+ * Build classification list (for debugging)
  ************************************ */
 invController.buildClassificationView = async function (req, res, next) {
   try {
@@ -44,15 +54,24 @@ invController.buildClassificationView = async function (req, res, next) {
 };
 
 /* ***************************
- * Build specific vehicle detail view
+ * Build vehicle detail view
  ************************** */
 invController.buildDetailView = async function (req, res, next) {
   try {
     const inventoryId = parseInt(req.params.inventoryId);
+
+    if (isNaN(inventoryId)) {
+      return res.status(400).render("errors/error", {
+        title: "Invalid Request",
+        nav: await utilities.getNav(),
+        message: "Invalid vehicle ID provided.",
+      });
+    }
+
     const data = await invModel.getVehicleById(inventoryId);
     const nav = await utilities.getNav();
 
-    if (!data) {
+    if (!data || Object.keys(data).length === 0) {
       return res.status(404).render("errors/error", {
         title: "Vehicle Not Found",
         nav,
@@ -61,18 +80,24 @@ invController.buildDetailView = async function (req, res, next) {
     }
 
     const vehicleHTML = utilities.buildVehicleDetail(data);
-    res.render("./inventory/detail", {
-      title: `${data.make} ${data.model}`,
+
+    res.status(200).render("./inventory/detail", {
+      title: `${data.inv_make || "Vehicle"} ${data.inv_model || ""}`,
       nav,
       vehicleHTML,
     });
   } catch (error) {
-    next(error);
+    console.error("💥 Error loading vehicle detail:", error);
+    res.status(500).render("errors/error", {
+      title: "Server Error",
+      nav: await utilities.getNav(),
+      message: "Something went wrong loading the vehicle details. Please try again later.",
+    });
   }
 };
 
 /* ***************************
- * Intentional error controller (Task 3)
+ * Error handler for testing
  ************************** */
 invController.triggerError = function (req, res, next) {
   return next(new Error("Intentional server error for testing."));
@@ -81,9 +106,9 @@ invController.triggerError = function (req, res, next) {
 /* ***************************
  * Inventory Management View (Week 04)
  ************************** */
-invController.buildManagementView = async function(req, res, next) {
+invController.buildManagementView = async function (req, res, next) {
   try {
-    const nav = await utilities.getNav(); // Add this if your view needs it
+    const nav = await utilities.getNav();
     res.render("./inventory/management", {
       title: "Inventory Management",
       nav,
@@ -94,9 +119,12 @@ invController.buildManagementView = async function(req, res, next) {
   }
 };
 
-invController.buildAddClassification = async function(req, res, next) {
+/* ***************************
+ * Add Classification
+ ************************** */
+invController.buildAddClassification = async function (req, res, next) {
   try {
-    const nav = await utilities.getNav(); // Optional
+    const nav = await utilities.getNav();
     res.render("./inventory/add-classification", {
       title: "Add New Classification",
       nav,
@@ -107,10 +135,10 @@ invController.buildAddClassification = async function(req, res, next) {
   }
 };
 
-invController.insertClassification = async function(req, res, next) {
+invController.insertClassification = async function (req, res, next) {
   try {
     const { classification_name } = req.body;
-    const addResult = await inventoryModel.addClassification(classification_name);
+    const addResult = await invModel.addClassification(classification_name);
 
     if (addResult) {
       req.flash("message", "New classification added successfully.");
@@ -124,10 +152,13 @@ invController.insertClassification = async function(req, res, next) {
   }
 };
 
+/* ***************************
+ * Add Inventory Vehicle
+ ************************** */
 invController.buildAddInventory = async function (req, res, next) {
   try {
-    const nav = await utilities.getNav(); // For your layout’s nav bar
-    const classificationOptions = await invModel.getClassifications(); // Dropdown data
+    const nav = await utilities.getNav();
+    const classificationOptions = await invModel.getClassifications();
 
     res.render("./inventory/add-inventory", {
       title: "Add Vehicle",
@@ -144,28 +175,28 @@ invController.insertInventory = async function (req, res, next) {
   try {
     const {
       classification_id,
-      make,
-      model,
-      year,
-      description,
-      miles,
-      price,
-      color,
-      image,
-      thumbnail
+      inv_make,
+      inv_model,
+      inv_year,
+      inv_description,
+      inv_miles,
+      inv_price,
+      inv_color,
+      inv_image,
+      inv_thumbnail
     } = req.body;
 
-    const result = await inventoryModel.insertInventory({
+    const result = await invModel.insertInventory({
       classification_id,
-      make,
-      model,
-      year,
-      description,
-      miles,
-      price,
-      color,
-      image,
-      thumbnail
+      inv_make,
+      inv_model,
+      inv_year,
+      inv_description,
+      inv_miles,
+      inv_price,
+      inv_color,
+      inv_image,
+      inv_thumbnail
     });
 
     if (result) {
@@ -179,6 +210,5 @@ invController.insertInventory = async function (req, res, next) {
     next(error);
   }
 };
-
 
 module.exports = invController;

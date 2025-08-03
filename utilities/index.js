@@ -52,36 +52,43 @@ Util.getNav = async function () {
 /* **************************************
  * Build the classification view HTML
  ************************************** */
-Util.buildClassificationGrid = async function(data) {
+Util.buildInventoryGrid = async function (data) {
   let grid = "";
 
-  if (data.length > 0) {
-    grid = '<ul id="inv-display">';
-    data.forEach(vehicle => {
-      grid += `
-        <li>
-          <a href="../../inv/detail/${vehicle.inv_id}" title="View ${vehicle.inv_make} ${vehicle.inv_model} details">
-            <img src="${vehicle.inv_thumbnail}" alt="Image of ${vehicle.inv_make} ${vehicle.inv_model} on CSE Motors" />
-          </a>
-          <div class="namePrice">
-            <hr />
-            <h2>
-              <a href="../../inv/detail/${vehicle.inv_id}" title="View ${vehicle.inv_make} ${vehicle.inv_model} details">
-                ${vehicle.inv_make} ${vehicle.inv_model}
-              </a>
-            </h2>
-            <span>$${new Intl.NumberFormat('en-US').format(vehicle.inv_price)}</span>
-          </div>
-        </li>
-      `;
-    });
-    grid += "</ul>";
-  } else {
+  // Guard clause: check if data is a valid array
+  if (!Array.isArray(data) || data.length === 0) {
     grid += '<p class="notice">Sorry, no matching vehicles could be found.</p>';
+    return grid;
   }
+
+  grid += '<ul id="inv-display">';
+  data.forEach(vehicle => {
+    // Fallback values to prevent rendering issues
+    const { inv_id, inv_make = "Unknown", inv_model = "Model", inv_price = 0, inv_thumbnail = "/images/no-image.png" } = vehicle;
+
+    grid += `
+      <li>
+        <a href="../../inv/detail/${inv_id}" title="View ${inv_make} ${inv_model} details">
+          <img src="/${inv_thumbnail}" alt="Image of ${inv_make} ${inv_model} on CSE Motors" />
+
+        </a>
+        <div class="namePrice">
+          <hr />
+          <h2>
+            <a href="../../inv/detail/${inv_id}" title="View ${inv_make} ${inv_model} details">
+              ${inv_make} ${inv_model}
+            </a>
+          </h2>
+          <span>$${new Intl.NumberFormat('en-US').format(inv_price)}</span>
+        </div>
+      </li>
+    `;
+  });
+  grid += "</ul>";
 
   return grid;
 };
+
 
 /* ****************************************
  * Middleware for Error Handling
@@ -93,31 +100,41 @@ Util.handleErrors = fn => (req, res, next) =>
  * Build detailed vehicle HTML view
  ************************************** */
 Util.buildVehicleDetail = function(vehicle) {
-  const price = vehicle.price.toLocaleString("en-US", { style: "currency", currency: "USD" });
-  const mileage = vehicle.miles.toLocaleString("en-US");
+  if (!vehicle) {
+    return `<p>Vehicle data could not be loaded.</p>`;
+  }
+
+  const price = vehicle.price
+    ? vehicle.price.toLocaleString("en-US", { style: "currency", currency: "USD" })
+    : "N/A";
+
+  const mileage = vehicle.miles
+    ? vehicle.miles.toLocaleString("en-US")
+    : "N/A";
 
   return `
     <section class="vehicle-detail">
       <div class="vehicle-wrapper">
         <div class="vehicle-image">
-          <img src="${vehicle.image}" alt="${vehicle.make} ${vehicle.model}">
+          <img src="${vehicle.image || "#"}" alt="${vehicle.make || "Unknown"} ${vehicle.model || ""}">
         </div>
         <div class="vehicle-info">
-          <h1>${vehicle.year} ${vehicle.make} ${vehicle.model}</h1>
+          <h1>${vehicle.year || "Year"} ${vehicle.make || "Make"} ${vehicle.model || "Model"}</h1>
           <ul>
             <li><strong>Price:</strong> ${price}</li>
             <li><strong>Mileage:</strong> ${mileage} miles</li>
-            <li><strong>Color:</strong> ${vehicle.color}</li>
-            <li><strong>Transmission:</strong> ${vehicle.transmission}</li>
-            <li><strong>Drivetrain:</strong> ${vehicle.drivetrain}</li>
-            <li><strong>Fuel Type:</strong> ${vehicle.fuel_type}</li>
-            <li><strong>MPG:</strong> ${vehicle.mpg}</li>
+            <li><strong>Color:</strong> ${vehicle.color || "N/A"}</li>
+            <li><strong>Transmission:</strong> ${vehicle.transmission || "N/A"}</li>
+            <li><strong>Drivetrain:</strong> ${vehicle.drivetrain || "N/A"}</li>
+            <li><strong>Fuel Type:</strong> ${vehicle.fuel_type || "N/A"}</li>
+            <li><strong>MPG:</strong> ${vehicle.mpg || "N/A"}</li>
           </ul>
         </div>
       </div>
     </section>
   `;
 };
+
 
 //Clean export
 module.exports = Util;

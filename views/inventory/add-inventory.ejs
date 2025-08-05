@@ -1,52 +1,39 @@
-<h1>Add New Vehicle</h1>
+<h1>Add Vehicle</h1>
 
-<% if (message.length > 0) { %>
-  <div class="flash-message"><%= message %></div>
+<% if (message) { %>
+  <p class="notice"><%= message %></p>
 <% } %>
 
-<form action="/inv/add-inventory" method="post" class="add-vehicle-form">
-  <!-- Vehicle Classification -->
-  <label for="classification_id">Classification:</label>
-  <select id="classification_id" name="classification_id" required>
-    <% classifications.forEach(class => { %>
-      <option value="<%= class.classification_id %>"><%= class.classification_name %></option>
-    <% }) %>
-  </select>
+<form method="post" action="/inv/add-inventory" novalidate>
 
-  <!-- Vehicle Make -->
-  <label for="make">Make:</label>
-  <input type="text" id="make" name="make" required placeholder="e.g. Toyota">
+  <%- classificationList %>
 
-  <!-- Vehicle Model -->
-  <label for="model">Model:</label>
-  <input type="text" id="model" name="model" required placeholder="e.g. Corolla">
+  <label for="inv_make">Make</label>
+  <input type="text" id="inv_make" name="make" value="<%= make %>" required />
 
-  <!-- Vehicle Year -->
-  <label for="year">Year:</label>
-  <input type="number" id="year" name="year" required min="1900" max="2099" placeholder="e.g. 2021">
+  <label for="inv_model">Model</label>
+  <input type="text" id="inv_model" name="model" value="<%= model %>" required />
 
-  <!-- Vehicle Description -->
-  <label for="description">Description:</label>
-  <textarea id="description" name="description" rows="3" required></textarea>
+  <label for="inv_year">Year</label>
+  <input type="number" id="inv_year" name="year" value="<%= year %>" required />
 
-  <!-- Vehicle Miles -->
-  <label for="miles">Miles:</label>
-  <input type="number" id="miles" name="miles" required min="0" placeholder="e.g. 25000">
+  <label for="description">Description</label>
+  <textarea id="description" name="description" required><%= description %></textarea>
 
-  <!-- Vehicle Price -->
-  <label for="price">Price:</label>
-  <input type="number" id="price" name="price" required min="0" step="0.01" placeholder="e.g. 17999.99">
+  <label for="miles">Miles</label>
+  <input type="number" id="miles" name="miles" value="<%= miles %>" required />
 
-  <!-- Vehicle Color -->
-  <label for="color">Color:</label>
-  <input type="text" id="color" name="color" required placeholder="e.g. Blue">
+  <label for="price">Price</label>
+  <input type="number" step="0.01" id="price" name="price" value="<%= price %>" required />
 
-  <!-- Image URL (Thumbnail and Full-size) -->
-  <label for="image">Image Path (Full Size):</label>
-  <input type="text" id="image" name="image" required placeholder="/images/vehicle.jpg">
+  <label for="color">Color</label>
+  <input type="text" id="color" name="color" value="<%= color %>" required />
 
-  <label for="thumbnail">Thumbnail Path:</label>
-  <input type="text" id="thumbnail" name="thumbnail" required placeholder="/images/vehicle-thumb.jpg">
+  <label for="image">Image Path</label>
+  <input type="text" id="image" name="image" value="<%= image %>" required />
 
-  <button type="submit">Submit Vehicle</button>
+  <label for="thumbnail">Thumbnail Path</label>
+  <input type="text" id="thumbnail" name="thumbnail" value="<%= thumbnail %>" required />
+
+  <button type="submit">Add Vehicle</button>
 </form>

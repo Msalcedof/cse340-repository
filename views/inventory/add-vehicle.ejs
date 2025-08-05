@@ -1,0 +1,21 @@
+<%- include('../layouts/header') %>
+
+<main>
+  <h1>Add Vehicle</h1>
+
+  <form action="/inv/add-vehicle" method="post">
+    <label for="classification_id">Classification:</label>
+    <select id="classification_id" name="classification_id">
+      <% classifications.forEach(class => { %>
+        <option value="<%= class.classification_id %>">
+          <%= class.classification_name %>
+        </option>
+      <% }) %>
+    </select>
+
+    <!-- Add other fields like make, model, price, etc. here -->
+    <button type="submit">Add Vehicle</button>
+  </form>
+</main>
+
+<%- include('../layouts/footer') %>

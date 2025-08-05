@@ -1,32 +1,32 @@
 const { body, validationResult } = require("express-validator");
 const invModel = require("../models/inventory-model"); // Needed to repopulate dropdown
-const utilities = require("./"); // For getNav()
+const utilities = require("./index"); // Make sure this path is correct!
 
-
-
+//  Classification Name Rules
 const classificationRules = () => [
   body("classification_name")
     .trim()
     .isLength({ min: 1 })
-    .withMessage("Classification name is required.")
-    .isAlpha()
-    .withMessage("Classification must contain only letters."),
+    .matches(/^[A-Za-z0-9]+$/)
+    .withMessage("No spaces or special characters allowed.")
 ];
 
-const checkClassificationData = (req, res, next) => {
+// Middleware to Check Classification Input
+const checkClassificationData = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const nav = await utilities.getNav(); // inject nav for consistent layout
+    req.flash("message", errors.array().map(e => e.msg).join(", "));
     return res.render("./inventory/add-classification", {
       title: "Add New Classification",
-      message: errors.array().map(e => e.msg).join(", "),
+      nav,
+      message: req.flash("message")
     });
   }
   next();
 };
 
-
-
-// Validation rules for inventory form
+// Inventory Form Rules
 const invValidationRules = () => [
   body("classification_id").isInt().withMessage("Please select a valid classification."),
   body("make").trim().notEmpty().withMessage("Make is required."),
@@ -40,24 +40,28 @@ const invValidationRules = () => [
   body("thumbnail").trim().notEmpty().withMessage("Thumbnail path is required.")
 ];
 
-// Validation checker
+// 🛠 Middleware to Check Inventory Input
 const checkInvData = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const nav = await utilities.getNav();
     const classificationOptions = await invModel.getClassifications();
 
+    req.flash("message", errors.array().map(e => e.msg).join(" "));
     return res.render("./inventory/add-inventory", {
       title: "Add Vehicle",
       nav,
       classifications: classificationOptions,
-      message: errors.array().map(e => e.msg).join(" "),
+      message: req.flash("message")
     });
   }
   next();
 };
 
-
-
-module.exports = { classificationRules, checkClassificationData, invValidationRules,
-  checkInvData };
+//  Export Everything
+module.exports = {
+  classificationRules,
+  checkClassificationData,
+  invValidationRules,
+  checkInvData
+};

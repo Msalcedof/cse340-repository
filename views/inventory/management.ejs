@@ -1,10 +1,6 @@
 <h1>Inventory Management</h1>
-
-<% if (locals.message) { %>
-  <div class="message"><%= locals.message %></div>
-<% } %>
-
+<p id="flash-message"><% messages %></p>
 <ul>
-  <li><a href="/inv/add-classification">Add New Classification</a></li>
-  <li><a href="/inv/add-inventory">Add New Vehicle</a></li>
+  <li><a href="/inv/add-classification">Add Classification</a></li>
+  <li><a href="/inv/add-inventory">Add Vehicle</a></li>
 </ul>

@@ -230,3 +230,14 @@ VALUES   (
     'White',
     5
   );
+
+
+--week 06 Enhancement Idea--
+
+
+CREATE TABLE message (
+  message_id SERIAL PRIMARY KEY,
+  account_id INTEGER REFERENCES account(account_id),
+  message_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

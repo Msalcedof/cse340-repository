@@ -1,0 +1,9 @@
+<main>
+  <h1>My Messages</h1>
+  <% if (notice) { %><div class="flash-message"><%= notice %></div><% } %>
+  <ul>
+    <% messages.forEach(msg => { %>
+      <li><strong><%= new Date(msg.created_at).toLocaleString() %>:</strong> <%= msg.message_text %></li>
+    <% }) %>
+  </ul>
+</main>

@@ -1,0 +1,11 @@
+<main>
+  <h1>Send a Message</h1>
+  <% if (notice) { %><div class="flash-message"><%= notice %></div><% } %>
+  <% if (errors) { %><div class="error"><%= errors[0].msg %></div><% } %>
+
+  <form action="/account/message" method="POST" novalidate>
+    <label for="message_text">Your Message</label>
+    <textarea name="message_text" id="message_text" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+</main>

@@ -296,3 +296,20 @@ input:required:valid {
 input:required:invalid {
   border: 2px solid #f44336;
 }
+
+#inventoryDisplay {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+}
+
+#inventoryDisplay th,
+#inventoryDisplay td {
+  border: 1px solid #ccc;
+  padding: 0.5em;
+  text-align: left;
+}
+
+#inventoryDisplay th {
+  background-color: #f4f4f4;
+}

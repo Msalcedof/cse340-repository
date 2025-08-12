@@ -1,0 +1,54 @@
+<%- include('../partials/header') %>
+<main>
+  <h1>Update Account</h1>
+
+  <% if (messages && messages.length > 0) { %>
+    <div class="notice"><%= messages.join('<br>') %></div>
+  <% } %>
+
+  <form action="/account/update" method="POST" novalidate>
+    <input type="hidden" name="account_id" value="<%= account.account_id %>">
+
+    <label for="first_name">First Name</label>
+    <input type="text" name="first_name" id="first_name" value="<%= account.first_name %>" required>
+    <% if (errors && errors.first_name) { %>
+      <div class="error"><%= errors.first_name %></div>
+    <% } %>
+
+    <label for="last_name">Last Name</label>
+    <input type="text" name="last_name" id="last_name" value="<%= account.last_name %>" required>
+    <% if (errors && errors.last_name) { %>
+      <div class="error"><%= errors.last_name %></div>
+    <% } %>
+
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" value="<%= account.email %>" required>
+    <% if (errors && errors.email) { %>
+      <div class="error"><%= errors.email %></div>
+    <% } %>
+
+    <button type="submit">Update Info</button>
+  </form>
+
+    <form action="/account/update-password" method="POST" novalidate>
+    <input type="hidden" name="account_id" value="<%= account.account_id %>">
+
+    <label for="password">New Password</label>
+    <input type="password" name="password" id="password" required
+        value="<%= typeof formData !== 'undefined' ? formData.password : '' %>">
+    <% if (errors && errors.password) { %>
+        <div class="error"><%= errors.password %></div>
+    <% } %>
+
+    <label for="confirm_password">Confirm Password</label>
+    <input type="password" name="confirm_password" id="confirm_password" required
+        value="<%= typeof formData !== 'undefined' ? formData.confirm_password : '' %>">
+    <% if (errors && errors.confirm_password) { %>
+        <div class="error"><%= errors.confirm_password %></div>
+    <% } %>
+
+    <button type="submit">Update Password</button>
+    </form>
+
+</main>
+<%- include('../partials/footer') %>

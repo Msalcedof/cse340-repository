@@ -1,4 +1,4 @@
-// 🟢 WHERE: Load environment variables FIRST
+//Load environment variables FIRST
 require("dotenv").config();
 
 /* ******************************************
@@ -6,7 +6,7 @@ require("dotenv").config();
  * application. It is used to control the project.
  *******************************************/
 
-/*  HOW: Require core modules and middleware */
+/*  Require core modules and middleware */
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const session = require("express-session");
@@ -14,6 +14,9 @@ const flash = require("connect-flash");
 const bodyParser = require("body-parser");
 const path = require("path"); // consistent static pathing
 const app = express();
+const cookieParser = require("cookie-parser");
+
+
 
 /*  Route and utility imports */
 const static = require("./routes/static");
@@ -25,6 +28,7 @@ const handleErrors = require("./utilities/errorHandler");
 const pool = require('./database/');
 
 /*  View engine configuration */
+app.use(cookieParser());
 app.set("view engine", "ejs");
 app.use(expressLayouts);
 app.set("layout", "./layouts/layout");
@@ -37,6 +41,8 @@ app.use(express.static(path.join(__dirname, "public")));
 // Parse request bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(utilities.checkJWT)
+
 
 // Enable session management with PostgreSQL store
 app.use(session({

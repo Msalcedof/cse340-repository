@@ -1,0 +1,40 @@
+<main>
+  <h1>Account Management</h1>
+
+  <% if (locals.notice) { %>
+    <div class="flash-message"><%= notice %></div>
+  <% } %>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="error-message">
+      <% errors.forEach(error => { %>
+        <p><%= error.msg %></p>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <section>
+    <p>You're logged in as <strong><%= accountData.account_firstname %> <%= accountData.account_lastname %></strong>.</p>
+    <p>Email: <%= accountData.account_email %></p>
+  </section>
+
+  <% if (accountData.account_type !== "Client") { %>
+    <section class="admin-tools">
+      <h2>Admin Tools</h2>
+      <ul>
+        <li><a href="/inv/add-classification">Add Classification</a></li>
+        <li><a href="/inv/add-inventory">Add Vehicle</a></li>
+        <li><a href="/inv">View Inventory</a></li>
+      </ul>
+    </section>
+  <% } %>
+
+  <section class="account-actions">
+    <h2>Account Actions</h2>
+    <ul>
+      <li><a href="/account/update">Update Account Info</a></li>
+      <li><a href="/account/update-password">Change Password</a></li>
+      <li><a href="/account/logout">Log Out</a></li>
+    </ul>
+  </section>
+</main>
